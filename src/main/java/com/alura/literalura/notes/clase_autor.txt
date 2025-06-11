@@ -1,0 +1,54 @@
+import com.fasterxml.jackson.annotation.JsonAlias;
+import jakarta.persistence.*;
+
+@Entity
+public class Autor {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String nombre;
+
+    @Column(name = "year_born")
+    @JsonAlias({"year_born"})
+    private Integer yearBorn;
+
+    @Column(name = "year_dead")
+    @JsonAlias({"year_dead"})
+    private Integer yearDead;
+
+    // Getters y Setters
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public Integer getYearBorn() {
+        return yearBorn;
+    }
+
+    public void setYearBorn(Integer yearBorn) {
+        this.yearBorn = yearBorn;
+    }
+
+    public Integer getYearDead() {
+        return yearDead;
+    }
+
+    public void setYearDead(Integer yearDead) {
+        this.yearDead = yearDead;
+    }
+}

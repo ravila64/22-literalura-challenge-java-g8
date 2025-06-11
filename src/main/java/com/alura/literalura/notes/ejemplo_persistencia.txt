@@ -1,0 +1,97 @@
+explicacion de la anotacion.
+@OneToMany(mappedBy = "serie",
+           cascade = CascadeType.ALL,
+           fetch = FetchType.EAGER)
+**
+se usa en JPA para definir una relación uno-a-muchos entre dos entidades. Veamos cada uno de sus elementos:
+
+@OneToMany
+Indica que la entidad en la que aplicas esta anotación (“lado padre”) está relacionada con varias instancias de otra entidad (“lado hijo”). Por ejemplo, una Serie tiene muchos Episodios.
+
+mappedBy = "serie"
+Señala que esta relación es el lado inverso (no dueño) y que la clave foránea está definida en la entidad “hijo” en su atributo serie.
+**
+
+// Lado hijo:
+@ManyToOne
+@JoinColumn(name = "serie_id")
+private Serie serie;
+Aquí mappedBy="serie" le dice a JPA “no crees otra tabla intermedia; fíjate en el campo serie de la entidad Episodio para hacer el enlace”.
+
+cascade = CascadeType.ALL
+Propaga todas las operaciones que hagas sobre la entidad padre hacia sus hijos. En concreto, incluye:
+
+PERSIST: al guardar la Serie, guarda automáticamente sus Episodios.
+MERGE: al actualizar la Serie, actualiza sus Episodios.
+REMOVE: al borrar la Serie, borra también sus Episodios.
+REFRESH, DETACH, etc. También se propagan.
+Útil cuando quieres que el ciclo de vida de Episodios dependa completamente de la Serie.
+**
+fetch = FetchType.EAGER
+Define cuándo se cargan los Episodios al recuperar una Serie de la base de datos:
+
+EAGER: JPA traerá siempre la lista completa de Episodios inmediatamente al cargar la Serie.
+
+LAZY: JPA sólo cargará los Episodios cuando accedas al getter (serie.getEpisodios()) por primera vez.
+
+Ten en cuenta que EAGER puede generar consultas más pesadas o incluso “Cartesian products” si tienes varias relaciones EAGER. A menudo se prefiere LAZY y cargar explícitamente con JOIN FETCH en tus queries cuando lo necesites.
+**
+
+@Entity
+public class Serie {
+    @Id @GeneratedValue
+    private Long id;
+    private String nombre;
+    @OneToMany(
+        mappedBy = "serie",
+        cascade = CascadeType.ALL,
+        fetch = FetchType.EAGER
+    )
+    private List<Episodio> episodios;
+
+    // getters y setters…
+
+    ***
+    @Entity
+    public class Episodio {
+        @Id @GeneratedValue
+        private Long id;
+        private String titulo;
+        @ManyToOne
+        @JoinColumn(name = "serie_id")
+        private Serie serie;
+
+        // getters y setters…
+    }
+    ****
+Al hacer serieRepository.save(unaSerie), se persisten también automáticamente todos sus episodios.
+
+Al recuperar Serie s = serieRepository.findById(id), la lista s.getEpisodios() ya vendrá cargada de la BD gracias a EAGER.
+
+**
+La anotación
+@JoinColumn(name = "serie_id")
+se coloca en el lado propietario de una relación (por lo general junto a @ManyToOne o @OneToOne) y le indica a JPA:
+
+Nombre de la columna de la clave foránea
+
+name = "serie_id" le dice a Hibernate que en la tabla de la entidad hija (por ejemplo, Episodio) exista una columna llamada serie_id.
+
+Ese campo alojará el valor de la clave primaria de la entidad padre (Serie.id), estableciendo así la vinculación entre ambas tablas.
+
+Evita creación de tabla intermedia
+
+Si no lo especificas, JPA crearía por defecto un nombre (p.ej. serie_id de todas formas) o incluso generaría una tabla de unión en algunos casos. Con @JoinColumn controlas exactamente en qué tabla y con qué nombre se almacena la relación.
+
+Atributos adicionales
+
+Puedes añadir parámetros como:
+
+referencedColumnName = "id" (por defecto ya apunta al @Id de la entidad padre).
+nullable = false para forzar que nunca sea NULL (obligatorio).
+updatable = false o insertable = false si quieres sólo lectura.
+**
+NOTA ADCIONAL
+Cuando guardes un Episodio, Hibernate pondrá en su columna serie_id el valor de Serie.id.
+Al hacer un SELECT, sabe unir episodio.serie_id = serie.id para rellenar ese objeto serie.
+**

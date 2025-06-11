@@ -1,0 +1,11 @@
+ Ejemplo de uso como DTO:
+
+@RestController
+@RequestMapping("/autores")
+public class AutorController {
+
+    @PostMapping
+    public String guardarAutor(@RequestBody Autor autor) {
+        return "Recibido autor: " + autor.nombre() + " (Nació: " + autor.yearBorn() + ")";
+    }
+}
