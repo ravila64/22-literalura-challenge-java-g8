@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-@Table(name = "literalura")
+@Table(name = "libros")
 public class Libro {
    @Id
    @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -13,8 +13,10 @@ public class Libro {
 
    @Column(unique = true)
    private String titulo;
+
    @OneToMany(mappedBy = "libro", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
    private List<Autor> autores;
+
    @Enumerated(EnumType.STRING)
    private List<Idioma> idiomas;
 
@@ -39,11 +41,12 @@ public class Libro {
 
    // getters and setters
 
-   public List<Autor> getAuthors() {
+
+   public List<Autor> getAutores() {
       return autores;
    }
 
-   public void setAuthors(List<Autor> autores) {
+   public void setAutores(List<Autor> autores) {
       this.autores = autores;
    }
 
