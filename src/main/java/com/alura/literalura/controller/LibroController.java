@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/books")
+//@RequestMapping("/books")
 @CrossOrigin(origins = "http://127.0.0.1:5500")
 public class LibroController {
    @Autowired
