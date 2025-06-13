@@ -1,6 +1,6 @@
 package com.alura.literalura.model;
 
-public enum Idioma {
+public enum IdiomaEnum {
    INGLES("en", "Inglés"),
    ESPAÑOL("es", "Español"),
    FRANCES("fr", "Francés"),
@@ -17,24 +17,24 @@ public enum Idioma {
    private String idiomaGutendex;
    private String idiomaEnEspanol;
 
-   Idioma(String idiomaGutendex, String idiomaEnEspanol) {
+   IdiomaEnum(String idiomaGutendex, String idiomaEnEspanol) {
       this.idiomaGutendex = idiomaGutendex;
       this.idiomaEnEspanol = idiomaEnEspanol;
    }
    
-   public static Idioma fromString(String text) {
-      for (Idioma idioma : Idioma.values()) {
-         if (idioma.idiomaGutendex.equalsIgnoreCase(text)) {
-            return idioma;
+   public static IdiomaEnum fromString(String text) {
+      for (IdiomaEnum idiomaEnum : IdiomaEnum.values()) {
+         if (idiomaEnum.idiomaGutendex.equalsIgnoreCase(text)) {
+            return idiomaEnum;
          }
       }
       throw new IllegalArgumentException("Ningún idioma encontrado: " + text);
    }
 
-   public static Idioma fromEspanol(String text) {
-      for (Idioma idioma : Idioma.values()) {
-         if (idioma.idiomaEnEspanol.equalsIgnoreCase(text)) {
-            return idioma;
+   public static IdiomaEnum fromEspanol(String text) {
+      for (IdiomaEnum idiomaEnum : IdiomaEnum.values()) {
+         if (idiomaEnum.idiomaEnEspanol.equalsIgnoreCase(text)) {
+            return idiomaEnum;
          }
       }
       throw new IllegalArgumentException("Ningún idioma encontrado: " + text);

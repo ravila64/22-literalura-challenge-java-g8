@@ -20,7 +20,7 @@ public class LibroService {
    
    public List<LibroDTO> convierteDatos(List<Libro> libro){
       return libro.stream()
-            .map(l -> new LibroDTO(l.getId(), l.getTitulo(), l.getAutores(),l.getIdiomas()))
+            .map(l -> new LibroDTO(l.getId(), l.getTitulo(), l.getAutores(), l.getIdiomas()))
             .collect(Collectors.toList());
    }
 

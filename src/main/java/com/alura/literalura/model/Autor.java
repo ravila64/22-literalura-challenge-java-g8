@@ -12,11 +12,11 @@ public class Autor {
 
    private String nombre;
 
-   @Column(name = "yearBorn")
+   //@Column(name = "yearBorn")
    @JsonAlias({"birth_year"})
    private Integer yearBorn;
 
-   @Column(name = "yearDead")
+   //@Column(name = "yearDead")
    @JsonAlias({"death_year"})
    private Integer yearDead;
 
@@ -80,7 +80,7 @@ public class Autor {
    @Override
    public String toString() {
       return "Autor{" +
-            "id=" + id +
+            "id=" + this.getId() +
             ", nombre='" + nombre + '\'' +
             ", yearBorn=" + yearBorn +
             ", yearDead=" + yearDead +

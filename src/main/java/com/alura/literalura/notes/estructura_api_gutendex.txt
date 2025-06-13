@@ -1,0 +1,21 @@
+{
+  "count": 76092,
+  "next": "https://gutendex.com/books/?page=2",
+  "previous": null,
+  "results": [
+    {
+      "id": 84,
+      "title": "Frankenstein; Or, The Modern Prometheus",
+      "authors": [
+        {
+          "name": "Shelley, Mary Wollstonecraft",
+          "birth_year": 1797,
+          "death_year": 1851
+        }
+      ],
+      languages": [
+              "en"
+      ],
+    },
+  ]
+ }

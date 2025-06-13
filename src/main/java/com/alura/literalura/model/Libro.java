@@ -14,11 +14,11 @@ public class Libro {
    @Column(unique = true)
    private String titulo;
 
-   @OneToMany(mappedBy = "libro", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+   //@Transient
+   @OneToMany(mappedBy = "libro", cascade=CascadeType.ALL, fetch=FetchType.EAGER)
    private List<Autor> autores;
 
-   @Enumerated(EnumType.STRING)
-   private List<Idioma> idiomas;
+   private List<String> idiomas;
 
    public Libro() {
    }
@@ -41,12 +41,12 @@ public class Libro {
 
    // getters and setters
 
-
    public List<Autor> getAutores() {
       return autores;
    }
 
    public void setAutores(List<Autor> autores) {
+      autores.forEach(a->a.setLibro(this));
       this.autores = autores;
    }
 
@@ -58,11 +58,11 @@ public class Libro {
       this.id = id;
    }
 
-   public List<Idioma> getIdiomas() {
+   public List<String> getIdiomas() {
       return idiomas;
    }
 
-   public void setIdiomas(List<Idioma> idiomas) {
+   public void setIdiomas(List<String> idiomas) {
       this.idiomas = idiomas;
    }
 

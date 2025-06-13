@@ -6,6 +6,8 @@ import com.alura.literalura.repository.LibroRepository;
 import com.alura.literalura.service.ConsumoAPI;
 import com.alura.literalura.service.ConvierteDatos;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -15,6 +17,7 @@ public class MainLiterAlura {
 
    private Scanner teclado = new Scanner(System.in);
    private ConsumoAPI consumoApi = new ConsumoAPI();
+   // books?search=
    private final String URL_BASE = "https://www.gutendex.com/books?search=";
    //   private final String API_KEY = "&apikey=" + System.getenv("API_KEY_MOVIES");
    private ConvierteDatos conversor = new ConvierteDatos();
@@ -32,11 +35,12 @@ public class MainLiterAlura {
       var opcion = -1;
       while (opcion != 0) {
          var menu = """
-               1 - Buscar libros por titulo
-               2 - Buscar libros registrados
-               3 - Listar autores registrados
-               4 - Listar autores vivos en determinado año
-               5 - Listar libros x idioma
+               1 - Grabar libros en la BD
+               2 - Buscar libros por titulo
+               3 - Buscar libros registrados
+               4 - Listar autores registrados
+               5 - Listar autores vivos en determinado año
+               6 - Listar libros x idiomaEnum
                
                0 - Salir
                """;
@@ -50,7 +54,7 @@ public class MainLiterAlura {
                buscarLibroWeb();
                break;
             case 2:
-               //buscarEpisodioPorLibro();
+               buscarLibrosPorTitulo();
                break;
             case 3:
                //mostrarLibrosBuscadas();
@@ -60,6 +64,7 @@ public class MainLiterAlura {
                break;
             case 5:
                //buscarTop5Libros();
+               //cargarJson();
                break;
 
             case 0:
@@ -71,22 +76,42 @@ public class MainLiterAlura {
       }
    }
 
+      private DatosLibro getDatosLibro () {
+         System.out.println("Escribe el nombre del libro que deseas buscar");
+         var nombreLibro = teclado.nextLine().toLowerCase();
+         String encodedQuery = null;
+         try {
+            encodedQuery = URLEncoder.encode(nombreLibro, "UTF-8");
+         } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+         }
+         var URL = URL_BASE + encodedQuery; // nombreLibro;
+         System.out.println("URL enviada " + URL);
+         var json = consumoApi.obtenerDatos(URL);
+         System.out.println("json generado \n" + json);
+         DatosLibro datos = conversor.obtenerDatos(json, DatosLibro.class);
+         return datos;
+      }
 
-   private DatosLibro getDatosLibro() {
-      System.out.println("Escribe el nombre del libro que deseas buscar");
-      var nombreLibro = teclado.nextLine();
-      var json = consumoApi.obtenerDatos(URL_BASE + nombreLibro.replace(" ", "+"));
-      System.out.println(json);
-      DatosLibro datos = conversor.obtenerDatos(json, DatosLibro.class);
-      return datos;
+      private void buscarLibroWeb () {
+         DatosLibro datos = getDatosLibro();
+         Libro libro = new Libro(datos);
+         System.out.println("Libro a grabar " + libro.toString());
+         repositorio.save(libro);
+         System.out.println("Libro guardado en la base de datos");
+         //datosLibros.add(datos);
+         System.out.println(datos);
+      }
+
+      private void buscarLibrosPorTitulo () {
+         System.out.print("Escriba nombre del libro a buscar ");
+         var nombreLibro = teclado.nextLine();
+         libroBuscado = repositorio.findByTituloContainsIgnoreCase(nombreLibro);
+         if (libroBuscado.isPresent()) {
+            System.out.println("Libro buscado " + libroBuscado.get());
+         } else {
+            System.out.println("Libro no encontrado !!!");
+         }
+      }
+
    }
-
-   private void buscarLibroWeb() {
-      DatosLibro datos = getDatosLibro();
-      Libro libro = new Libro(datos);
-      repositorio.save(libro);
-      //datosLibros.add(datos);
-      System.out.println(datos);
-   }
-
-}

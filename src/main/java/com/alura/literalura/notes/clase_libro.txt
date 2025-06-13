@@ -25,9 +25,9 @@ public class Libro {
     @ElementCollection(targetClass = Idioma.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "libro_idiomas", joinColumns = @JoinColumn(name = "libro_id"))
-    @Column(name = "idioma")
+    @Column(name = "idiomaEnum")
     @JsonAlias({"langs", "languages"})
-    private List<Idioma> idiomas;
+    private List<Idioma> idiomaEnums;
 
     // Getters y Setters
 
@@ -56,10 +56,10 @@ public class Libro {
     }
 
     public List<Idioma> getIdiomas() {
-        return idiomas;
+        return idiomaEnums;
     }
 
-    public void setIdiomas(List<Idioma> idiomas) {
-        this.idiomas = idiomas;
+    public void setIdiomas(List<Idioma> idiomaEnums) {
+        this.idiomaEnums = idiomaEnums;
     }
 }

@@ -8,12 +8,12 @@ import java.util.List;
 
 @RestController
 //@RequestMapping("/books")
-@CrossOrigin(origins = "http://127.0.0.1:5500")
+//@CrossOrigin(origins = "http://127.0.0.1:5500")
 public class LibroController {
    @Autowired
    private LibroService service;
 
-   @GetMapping("")
+   @GetMapping("/books")
    public List<LibroDTO> obtenerTodosLibros() {
       return service.obtenerTodosLibros();
    }
