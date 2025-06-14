@@ -1,14 +1,16 @@
 package com.alura.literalura.main;
 
+import com.alura.literalura.model.Autor;
 import com.alura.literalura.model.DatosLibro;
 import com.alura.literalura.model.Libro;
+import com.alura.literalura.repository.AutorRepository;
 import com.alura.literalura.repository.LibroRepository;
-import com.alura.literalura.service.ConsumoAPI;
-import com.alura.literalura.service.ConvierteDatos;
+import com.alura.literalura.service.*;
+import com.fasterxml.jackson.annotation.JsonIgnoreType;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
@@ -17,17 +19,24 @@ public class MainLiterAlura {
 
    private Scanner teclado = new Scanner(System.in);
    private ConsumoAPI consumoApi = new ConsumoAPI();
+   private ConsumoRespuesta consumoRespuesta = new ConsumoRespuesta();
    // books?search=
-   private final String URL_BASE = "https://www.gutendex.com/books?search=";
+   //private final String URL_BASE = "https://www.gutendex.com/books?search=";
    //   private final String API_KEY = "&apikey=" + System.getenv("API_KEY_MOVIES");
+   private final String URL_BASE = "https://www.gutendex.com/books/?title=";
    private ConvierteDatos conversor = new ConvierteDatos();
    //   private List<DatosLibro> datosLibros = new ArrayList<>();
-   private LibroRepository repositorio;
-   private List<Libro> libros;
+   private LibroRepository repositorioLib;
+   private AutorRepository repositorioAut;
+   private List<Libro> results;
+   private LibroService libroService = new LibroService();   // instanciar
+
    private Optional<Libro> libroBuscado;
 
-   public MainLiterAlura(LibroRepository repository) {
-      this.repositorio = repository;
+   public MainLiterAlura(LibroRepository repositoryL, AutorRepository repositoryA)
+   {
+      this.repositorioLib = repositoryL;
+      this.repositorioAut = repositoryA;
    }
 
    public void mostrarMenu() {
@@ -63,8 +72,7 @@ public class MainLiterAlura {
                //buscarLibrosPorTitulo();
                break;
             case 5:
-               //buscarTop5Libros();
-               //cargarJson();
+               autoresVivosSegunFechas();
                break;
 
             case 0:
@@ -72,8 +80,8 @@ public class MainLiterAlura {
                break;
             default:
                System.out.println("Opción inválida");
-         }
-      }
+         } // end sw
+      } // end wh
    }
 
       private DatosLibro getDatosLibro () {
@@ -85,9 +93,10 @@ public class MainLiterAlura {
          } catch (UnsupportedEncodingException e) {
             throw new RuntimeException(e);
          }
-         var URL = URL_BASE + encodedQuery; // nombreLibro;
-         System.out.println("URL enviada " + URL);
-         var json = consumoApi.obtenerDatos(URL);
+         var URL2 = URL_BASE + encodedQuery; // nombreLibro;
+         System.out.println("URL enviada " + URL_BASE);
+         var json = consumoApi.obtenerDatos(URL_BASE);
+         // var json = consumoRespuesta.obtenerDatos(URL_BASE);  // OPCION 2
          System.out.println("json generado \n" + json);
          DatosLibro datos = conversor.obtenerDatos(json, DatosLibro.class);
          return datos;
@@ -97,7 +106,7 @@ public class MainLiterAlura {
          DatosLibro datos = getDatosLibro();
          Libro libro = new Libro(datos);
          System.out.println("Libro a grabar " + libro.toString());
-         repositorio.save(libro);
+         repositorioLib.save(libro);
          System.out.println("Libro guardado en la base de datos");
          //datosLibros.add(datos);
          System.out.println(datos);
@@ -106,7 +115,7 @@ public class MainLiterAlura {
       private void buscarLibrosPorTitulo () {
          System.out.print("Escriba nombre del libro a buscar ");
          var nombreLibro = teclado.nextLine();
-         libroBuscado = repositorio.findByTituloContainsIgnoreCase(nombreLibro);
+         libroBuscado = repositorioLib.findByTituloContainsIgnoreCase(nombreLibro);
          if (libroBuscado.isPresent()) {
             System.out.println("Libro buscado " + libroBuscado.get());
          } else {
@@ -114,4 +123,20 @@ public class MainLiterAlura {
          }
       }
 
+      private void autoresVivosSegunFechas(){
+         System.out.print("Ingrese numero de año para saber autores vivos en esa fecha ");
+         var buscar = teclado.nextLine();
+         try{
+            Integer fecha = Integer.parseInt(buscar);
+            List<Autor> autoresVivosSegunFecha = repositorioAut.autoresVivosSegunFechas(fecha);
+            if(autoresVivosSegunFecha.isEmpty()){
+               System.out.println("No se registran autores vivos en esa fecha");
+               return;
+            }
+            autoresVivosSegunFecha.stream().sorted(Comparator.comparing(Autor::getNombreAutor))
+                  .forEach(System.out::println);
+         } catch (NumberFormatException e) {
+            System.out.println("El valor ingresado no es un numero entero !!!");
+         }
+      }
    }

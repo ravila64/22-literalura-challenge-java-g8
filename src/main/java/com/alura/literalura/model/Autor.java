@@ -10,7 +10,7 @@ public class Autor {
    @GeneratedValue(strategy = GenerationType.IDENTITY)
    private Long id;
 
-   private String nombre;
+   private String nombreAutor;
 
    //@Column(name = "yearBorn")
    @JsonAlias({"birth_year"})
@@ -27,7 +27,7 @@ public class Autor {
    }
 
    public Autor(DatosAutor da) {
-      this.nombre = da.nombre();
+      this.nombreAutor = da.nombreAutor();
       this.yearBorn = da.yearBorn();
       try {
          this.yearDead = Integer.valueOf(da.yearDead());
@@ -41,36 +41,36 @@ public class Autor {
       return id;
    }
 
-   public Libro getLibro() {
-      return libro;
-   }
-
-   public String getNombre() {
-      return nombre;
-   }
-
-   public Integer getYearBorn() {
-      return yearBorn;
-   }
-
-   public Integer getYearDead() {
-      return yearDead;
-   }
-
    public void setId(Long id) {
       this.id = id;
+   }
+
+   public Libro getLibro() {
+      return libro;
    }
 
    public void setLibro(Libro libro) {
       this.libro = libro;
    }
 
-   public void setNombre(String nombre) {
-      this.nombre = nombre;
+   public String getNombreAutor() {
+      return nombreAutor;
+   }
+
+   public void setNombreAutor(String nombreAutor) {
+      this.nombreAutor = nombreAutor;
+   }
+
+   public Integer getYearBorn() {
+      return yearBorn;
    }
 
    public void setYearBorn(Integer yearBorn) {
       this.yearBorn = yearBorn;
+   }
+
+   public Integer getYearDead() {
+      return yearDead;
    }
 
    public void setYearDead(Integer yearDead) {
@@ -81,7 +81,7 @@ public class Autor {
    public String toString() {
       return "Autor{" +
             "id=" + this.getId() +
-            ", nombre='" + nombre + '\'' +
+            ", nombreAutor='" + nombreAutor + '\'' +
             ", yearBorn=" + yearBorn +
             ", yearDead=" + yearDead +
             ", libro=" + libro +

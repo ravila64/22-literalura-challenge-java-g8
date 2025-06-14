@@ -1,7 +1,7 @@
 package com.alura.literalura.dto;
 
 public record AutorDTO(
-      String nombre,
+      String nombreAutor,
       Integer yearBorn,
       Integer yearDead
 ) {

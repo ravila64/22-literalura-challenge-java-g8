@@ -1,0 +1,6 @@
+   @ManyToMany(cascade={CascadeType.PERSIST, CascadeType.MERGE}, fetch=FetchType.EAGER)
+   @JoinTable(name="autor_libro"),
+       joinColumns = @JoinColumn(name="autor_id"),
+       inverseJoinColumns= @JoinColumn(name="libro_id"))
+   // opcion de muchos a muchos
+
