@@ -17,34 +17,34 @@ import java.util.Scanner;
 
 public class MainLiterAlura {
 
+   private final String URL_BASE = "https://www.gutendex.com/books/";
+   private final String URL_PAGE = "?page=";
+   private final String URL_FIND = "?search=";
    private Scanner teclado = new Scanner(System.in);
    private ConsumoAPI consumoApi = new ConsumoAPI();
-   private ConsumoRespuesta consumoRespuesta = new ConsumoRespuesta();
-   // books?search=
-   //private final String URL_BASE = "https://www.gutendex.com/books?search=";
-   //   private final String API_KEY = "&apikey=" + System.getenv("API_KEY_MOVIES");
-   private final String URL_BASE = "https://www.gutendex.com/books/?title=";
+   //private ConsumoRespuesta consumoRespuesta = new ConsumoRespuesta();
    private ConvierteDatos conversor = new ConvierteDatos();
    //   private List<DatosLibro> datosLibros = new ArrayList<>();
    private LibroRepository repositorioLib;
    private AutorRepository repositorioAut;
-   private List<Libro> results;
-   private LibroService libroService = new LibroService();   // instanciar
+   //private List<Libro> results;
+   //private LibroService libroService = new LibroService();   // instanciar
 
-   private Optional<Libro> libroBuscado;
+   //private Optional<Libro> libroBuscado;
 
    public MainLiterAlura(LibroRepository repositoryL, AutorRepository repositoryA)
    {
       this.repositorioLib = repositoryL;
       this.repositorioAut = repositoryA;
    }
-
+   
+   private int opcion = -1;
+   
    public void mostrarMenu() {
       System.out.println("MENU PRINCIPAL");
-      var opcion = -1;
       while (opcion != 0) {
          var menu = """
-               1 - Grabar libros en la BD
+               1 - Buscar Libro y grabar libros en la BD
                2 - Buscar libros por titulo
                3 - Buscar libros registrados
                4 - Listar autores registrados
@@ -60,7 +60,7 @@ public class MainLiterAlura {
 
          switch (opcion) {
             case 1:
-               buscarLibroWeb();
+               buscarLibroTitulo();
                break;
             case 2:
                buscarLibrosPorTitulo();
@@ -84,25 +84,37 @@ public class MainLiterAlura {
       } // end wh
    }
 
-      private DatosLibro getDatosLibro () {
-         System.out.println("Escribe el nombre del libro que deseas buscar");
-         var nombreLibro = teclado.nextLine().toLowerCase();
-         String encodedQuery = null;
-         try {
-            encodedQuery = URLEncoder.encode(nombreLibro, "UTF-8");
-         } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException(e);
-         }
-         var URL2 = URL_BASE + encodedQuery; // nombreLibro;
-         System.out.println("URL enviada " + URL_BASE);
-         var json = consumoApi.obtenerDatos(URL_BASE);
-         // var json = consumoRespuesta.obtenerDatos(URL_BASE);  // OPCION 2
-         System.out.println("json generado \n" + json);
-         DatosLibro datos = conversor.obtenerDatos(json, DatosLibro.class);
-         return datos;
-      }
+   public Optional<DatosLibro> getBookData(String userTitle) {
+      String json = consumeAPI.getData(URL_BASE + URL_SEARCH_BY_NAME + userTitle.toLowerCase().replace(" ", "+"));
+      List<DatosLibro> books = conversor.convertData(json, Data.class).results();
 
-      private void buscarLibroWeb () {
+      Optional<DatosLibro>
+            book = books.stream()
+            .filter(l -> l.title().toLowerCase().contains(userTitle.toLowerCase()))
+            .findFirst();
+
+      return book;
+   }
+
+//      private DatosLibro getDatosLibro () {
+//         System.out.println("Escribe el nombre del libro que deseas buscar");
+//         var nombreLibro = teclado.nextLine().toLowerCase();
+//         String encodedQuery = null;
+//         try {
+//            encodedQuery = URLEncoder.encode(nombreLibro, "UTF-8");
+//         } catch (UnsupportedEncodingException e) {
+//            throw new RuntimeException(e);
+//         }
+//         var URL2 = URL_BASE + encodedQuery; // nombreLibro;
+//         System.out.println("URL enviada " + URL_BASE);
+//         var json = consumoApi.obtenerDatos(URL_BASE);
+//         // var json = consumoRespuesta.obtenerDatos(URL_BASE);  // OPCION 2
+//         System.out.println("json generado \n" + json);
+//         DatosLibro datos = conversor.obtenerDatos(json, DatosLibro.class);
+//         return datos;
+//      }
+
+      private void buscarLibroTitulo () {
          DatosLibro datos = getDatosLibro();
          Libro libro = new Libro(datos);
          System.out.println("Libro a grabar " + libro.toString());
