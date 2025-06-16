@@ -12,11 +12,9 @@ public class Autor {
 
    private String nombreAutor;
 
-   //@Column(name = "yearBorn")
    @JsonAlias({"birth_year"})
    private Integer yearBorn;
 
-   //@Column(name = "yearDead")
    @JsonAlias({"death_year"})
    private Integer yearDead;
 

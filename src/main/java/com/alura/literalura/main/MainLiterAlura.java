@@ -115,7 +115,7 @@ public class MainLiterAlura {
 //      }
 
       private void buscarYGrabarLibroXTitulo() {
-         System.out.println("Escribe el nombre del libro que deseas buscar");
+         System.out.print("Escribe el nombre del libro que desea buscar : ");
          var nombreLibro = teclado.nextLine().toLowerCase();
          Optional<DatosLibro> datos = getDatosLibro(nombreLibro);
          // si no existe, grabar en BD
