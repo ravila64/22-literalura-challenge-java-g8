@@ -13,6 +13,7 @@ public class LiteraluraApplication implements CommandLineRunner {
 
 	@Autowired  // inyectar dependencias
 	private LibroRepository repositoryLib;
+	@Autowired
 	private AutorRepository repositoryAut;
 
 	public static void main(String[] args) {

@@ -1,23 +1,24 @@
 package com.alura.literalura.main;
 
+import com.alura.literalura.dto.Datos;
 import com.alura.literalura.model.Autor;
 import com.alura.literalura.model.DatosLibro;
 import com.alura.literalura.model.Libro;
 import com.alura.literalura.repository.AutorRepository;
 import com.alura.literalura.repository.LibroRepository;
 import com.alura.literalura.service.*;
-import com.fasterxml.jackson.annotation.JsonIgnoreType;
+import com.fasterxml.jackson.core.JsonProcessingException;
+// falta dto.Datos
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class MainLiterAlura {
 
-   private final String URL_BASE = "https://www.gutendex.com/books/";
+   private final String URL_BASE = "https://www.gutendex.com/Libros/";
    private final String URL_PAGE = "?page=";
    private final String URL_FIND = "?search=";
    private Scanner teclado = new Scanner(System.in);
@@ -30,7 +31,7 @@ public class MainLiterAlura {
    //private List<Libro> results;
    //private LibroService libroService = new LibroService();   // instanciar
 
-   //private Optional<Libro> libroBuscado;
+   //private Optional<Libro> apiLibro;
 
    public MainLiterAlura(LibroRepository repositoryL, AutorRepository repositoryA)
    {
@@ -60,10 +61,10 @@ public class MainLiterAlura {
 
          switch (opcion) {
             case 1:
-               buscarLibroTitulo();
+               buscarYGrabarLibroXTitulo();
                break;
             case 2:
-               buscarLibrosPorTitulo();
+               //buscarLibrosPorTitulo();
                break;
             case 3:
                //mostrarLibrosBuscadas();
@@ -84,16 +85,15 @@ public class MainLiterAlura {
       } // end wh
    }
 
-   public Optional<DatosLibro> getBookData(String userTitle) {
-      String json = consumeAPI.getData(URL_BASE + URL_SEARCH_BY_NAME + userTitle.toLowerCase().replace(" ", "+"));
-      List<DatosLibro> books = conversor.convertData(json, Data.class).results();
-
-      Optional<DatosLibro>
-            book = books.stream()
-            .filter(l -> l.title().toLowerCase().contains(userTitle.toLowerCase()))
+   // se agrego un throws, al utilizar obtner datos
+   public Optional<DatosLibro> getDatosLibro(String tituloLibro) {
+      String json = consumoApi.obtenerDatos(URL_BASE + URL_FIND + tituloLibro.toLowerCase().replace(" ", "+"));
+      List<DatosLibro> libros = conversor.obtenerDatos(json, Datos.class).listaDeLibros();
+      Optional<DatosLibro> libro;
+            libro = libros.stream()
+            .filter(l -> l.titulo().toLowerCase().contains(tituloLibro.toLowerCase()))
             .findFirst();
-
-      return book;
+      return libro;
    }
 
 //      private DatosLibro getDatosLibro () {
@@ -114,26 +114,57 @@ public class MainLiterAlura {
 //         return datos;
 //      }
 
-      private void buscarLibroTitulo () {
-         DatosLibro datos = getDatosLibro();
-         Libro libro = new Libro(datos);
-         System.out.println("Libro a grabar " + libro.toString());
-         repositorioLib.save(libro);
-         System.out.println("Libro guardado en la base de datos");
-         //datosLibros.add(datos);
-         System.out.println(datos);
+      private void buscarYGrabarLibroXTitulo() {
+         System.out.println("Escribe el nombre del libro que deseas buscar");
+         var nombreLibro = teclado.nextLine().toLowerCase();
+         Optional<DatosLibro> datos = getDatosLibro(nombreLibro);
+         // si no existe, grabar en BD
+         if(datos.isPresent()){   // existe en la api
+            Libro libro = new Libro(datos.get());
+            repositorioLib.save(libro);
+            System.out.println("Libro grabado en BD " + libro);
+         }
+         
+         //buscar libro en la BD
+         Optional<Libro> libroEnBaseDatos = repositorioLib.findByTituloContainsIgnoreCase(nombreLibro);
+         if (libroEnBaseDatos.isPresent()) {
+            System.out.println("Libro ya existe en la Base de Datos");
+            System.out.println(libroEnBaseDatos.get());
+         } else if (datos.isPresent()) {
+            // busqueda y/o crear nuevo autor
+            // Recorrerer lista de autores y grabarla
+
+            List<Autor> AutorList = datos.get().autores().stream()
+                    .map(a -> AutorRepository.findByNameContainsIgnoreCase(a.name())
+                            .orElseGet(() -> AutorRepository.save(new Autor(a))))
+                    .collect(Collectors.toList());
+            // nueva instancia...
+            Book newlibroEnBaseDatos = new Book(apiLibro.get(),AutorList);
+            bookRepository.save(newlibroEnBaseDatos);
+            System.out.println(newlibroEnBaseDatos);
+         } else {
+            System.out.println("Libro no encontrado :(");
+         }
+            // si encontramos el libro en la api...
+//         DatosLibro datos = getDatosLibro(nombreLibro);
+//         Libro libro = new Libro(datos);
+//         System.out.println("Libro a grabar " + libro.toString());
+//         repositorioLib.save(libro);
+//         System.out.println("Libro guardado en la base de datos");
+//         //datosLibros.add(datos);
+//         System.out.println(datos);
       }
 
-      private void buscarLibrosPorTitulo () {
-         System.out.print("Escriba nombre del libro a buscar ");
-         var nombreLibro = teclado.nextLine();
-         libroBuscado = repositorioLib.findByTituloContainsIgnoreCase(nombreLibro);
-         if (libroBuscado.isPresent()) {
-            System.out.println("Libro buscado " + libroBuscado.get());
-         } else {
-            System.out.println("Libro no encontrado !!!");
-         }
-      }
+//      private void buscarLibrosPorTitulo () {
+//         System.out.print("Escriba nombre del libro a buscar ");
+//         var nombreLibro = teclado.nextLine();
+//         apiLibro = repositorioLib.findByTituloContainsIgnoreCase(nombreLibro);
+//         if (apiLibro.isPresent()) {
+//            System.out.println("Libro buscado " + apiLibro.get());
+//         } else {
+//            System.out.println("Libro no encontrado !!!");
+//         }
+//      }
 
       private void autoresVivosSegunFechas(){
          System.out.print("Ingrese numero de año para saber autores vivos en esa fecha ");
